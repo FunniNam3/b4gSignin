@@ -7,7 +7,7 @@ import { AuthProvider } from "./context/authContext.tsx";
 import axios from "axios";
 
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = "http://127.0.0.1:5000/";
+axios.defaults.baseURL = "http://127.0.0.1:5000";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
