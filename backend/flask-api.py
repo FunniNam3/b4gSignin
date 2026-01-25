@@ -16,14 +16,25 @@ app = Flask(__name__)
 app.secret_key = os.getenv('BACKEND_KEY')
 app.permanent_session_lifetime = timedelta(days=7)
 
-# DB setup
-CORS(app, supports_credentials=True)
+app.config.update(
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=False,  # HTTPS only in prod
+)
 
+CORS(
+    app,
+    supports_credentials=True,
+    origins=["http://localhost:5173"],
+    methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type"]
+)
+
+# DB setup
 db_config = {
-    'host': os.getenv('MYSQL_HOST'),
-    'database': os.getenv('MYSQL_DATABASE'),
-    'user': os.getenv('MYSQL_USER'),
-    'password': os.getenv('MYSQL_PASSWORD')
+    'host': os.getenv('DATABASE_HOST'),
+    'database': os.getenv('DATABASE_NAME'),
+    'user': os.getenv('DATABASE_USER'),
+    'password': os.getenv('DATABASE_PASSWORD')
 }
 
 # gets connection to db
@@ -60,7 +71,14 @@ def authenticate():
     try:
         # gets user info
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        cursor.execute(
+            """
+            SELECT userID, firstName, lastName, email, gradYear, permissions, passwordHash
+            FROM users
+            WHERE email = %s
+            """,
+            (email,)
+        )
         user_record = cursor.fetchone()
 
         # if fail return
@@ -68,13 +86,16 @@ def authenticate():
             return jsonify({'status': 'fail', 'message': 'Invalid username or password'}), 401
 
         # Compare bcrypt hash with provided password
-        if bcrypt.checkpw(password.encode('utf-8'), user_record['password'].encode('utf-8')):
+        if bcrypt.checkpw(password.encode("utf-8"), user_record["passwordHash"].encode("utf-8")):
             # If match make session and add user
             session.permanent = True
             session['id'] = user_record.get('id')
             session['firstName'] = user_record.get('firstName')
             session['email'] = email
             session['permissions'] = user_record.get('permissions')
+            session['lastName'] = user_record.get('lastName')
+            session['gradYear'] = user_record.get('gradYear')
+
             return jsonify({'status': 'success', 'message': 'Authenticated', 'roles':user_record['roles']}), 200
         else:
             return jsonify({'status': 'fail', 'message': 'Invalid username or password'}), 401
@@ -144,7 +165,7 @@ def create_user():
     try:
         # Create user
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (firstName, lastName, email, password, permissions gradYear) VALUES (%s, %s, %s, %i, %i)", 
+        cursor.execute("INSERT INTO users (firstName, lastName, email, password, permissions, gradYear) VALUES (%s, %s, %s, %i, %i)", 
                        (firstName, lastName, email, hashedPassword.decode('utf-8'), 0, gradYear))
         conn.commit()
         return jsonify({'status': 'success', 'message': 'User created'}), 201
