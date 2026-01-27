@@ -49,6 +49,8 @@ const Auth = () => {
     }
   };
 
+  // TODO move session checks from backend to frontend
+
   return (
     <div style={{ maxWidth: 400, margin: "0 auto" }}>
       <h1>{isSignup ? "Sign Up" : "Login"}</h1>

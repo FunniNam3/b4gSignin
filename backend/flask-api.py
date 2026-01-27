@@ -24,7 +24,6 @@ app.config.update(
 CORS(
     app,
     supports_credentials=True,
-    origins=["http://localhost:5173"],
     methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type"]
 )
@@ -46,10 +45,12 @@ def get_db_connection():
         print(f"Error connecting to MySQL: {e}")
         return None
 
+# TODO move session checks from backend to frontend
 # makes sure user is loggedin
 def loginRequired(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
+        print(session)
         if 'email' not in session:
             return jsonify({'error':'Not authenticated or not logged in'}), 401
         return f(*args, **kwargs)
@@ -96,7 +97,7 @@ def authenticate():
             session['lastName'] = user_record.get('lastName')
             session['gradYear'] = user_record.get('gradYear')
 
-            return jsonify({'status': 'success', 'message': 'Authenticated', 'roles':user_record['roles']}), 200
+            return jsonify({'status': 'success', 'message': 'Authenticated', 'permissions':user_record['permissions']}), 200
         else:
             return jsonify({'status': 'fail', 'message': 'Invalid username or password'}), 401
 
@@ -165,11 +166,44 @@ def create_user():
     try:
         # Create user
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (firstName, lastName, email, password, permissions, gradYear) VALUES (%s, %s, %s, %i, %i)", 
+        cursor.execute("INSERT INTO users (firstName, lastName, email, passwordHash, permissions, gradYear) VALUES (%s, %s, %s, %i, %i)", 
                        (firstName, lastName, email, hashedPassword.decode('utf-8'), 0, gradYear))
         conn.commit()
         return jsonify({'status': 'success', 'message': 'User created'}), 201
 
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route('/test', methods=['GET'])
+def test():
+    conn = get_db_connection()
+    if conn is None:
+        return jsonify({'error': 'DB failure'}), 500
+    
+    try:
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(
+            """
+            SELECT userID, firstName, lastName, email, gradYear, permissions, passwordHash
+            FROM users
+            WHERE email = %s
+            """,
+            ("eve.jones@example.com",)
+        )
+        user_record = cursor.fetchone()
+
+        if not user_record:
+            return jsonify({'status': 'fail', 'message': 'Invalid username or password'}), 401
+
+
+        # checkPass = bcrypt.checkpw("password123".encode("utf-8"), user_record["passwordHash"].encode("utf-8"))
+
+        return bcrypt.hashpw("password123".encode('utf-8'), bcrypt.gensalt()), 200
     except Error as e:
         return jsonify({'error': str(e)}), 500
 
