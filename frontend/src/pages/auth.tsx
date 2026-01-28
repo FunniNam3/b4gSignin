@@ -1,9 +1,11 @@
 import { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/authContext";
+import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
+  const navigate = useNavigate();
 
   const [isSignup, setIsSignup] = useState(false);
 
@@ -16,6 +18,10 @@ const Auth = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  if (user) {
+    navigate("/dashboard");
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -23,7 +29,6 @@ const Auth = () => {
 
     try {
       if (isSignup) {
-        // sign up
         await axios.post("/createUser", {
           email,
           password,
@@ -33,23 +38,25 @@ const Auth = () => {
         });
       }
 
-      // login after signup or normal login
-      await axios.post("/auth", {
-        username: email,
+      // sets HTTP-only cookie
+      const res = await axios.post("/auth", {
+        email,
         password,
       });
 
-      // Load session user
-      const res = await axios.get("/currentUser");
-      login(res.data);
+      if (res.data.success) {
+        login(res.data.user);
+        navigate("/dashboard");
+      } else {
+        setError(res.data.error);
+      }
     } catch (err: any) {
+      console.error(err.response);
       setError(err.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
-
-  // TODO move session checks from backend to frontend
 
   return (
     <div style={{ maxWidth: 400, margin: "0 auto" }}>

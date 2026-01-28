@@ -12,33 +12,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Check local storage on app load to see if a session exists
-    const storedToken = localStorage.getItem("authToken");
-    const storedUser = localStorage.getItem("user");
-
-    if (storedToken && storedUser) {
-      // In a real app, you'd want to validate the token with your backend here
-      // For this example, we assume the token and user data are valid if present
-      setUser(JSON.parse(storedUser));
-      axios.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
-    }
-    setIsLoading(false);
-  }, []);
-
-  const login = (newToken: string, userData: User) => {
-    localStorage.setItem("authToken", newToken);
-    localStorage.setItem("user", JSON.stringify(userData));
-    setUser(userData);
-    axios.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
+  const login = (user: User) => {
+    setUser(user); // Adds user info to state
   };
 
   const logout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("user");
-    setUser(null);
+    setUser(null); // Removes user info from state
+    axios.post("/logout"); // send request to api to logout the user from backend
     delete axios.defaults.headers.common["Authorization"];
   };
+
+  // On page open and reloadsd check if a user is currently signed in or not
+  useEffect(() => {
+    const restoreSession = async () => {
+      try {
+        const res = await axios.get("/currentUser");
+        if (res.data.id) {
+          setUser(res.data);
+        } else {
+          throw new Error("No user in session");
+        }
+      } catch {
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    restoreSession();
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, login, logout, isLoading }}>

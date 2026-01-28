@@ -1,7 +1,13 @@
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  if (!user) {
+    navigate("/");
+  }
 
   return (
     <div>

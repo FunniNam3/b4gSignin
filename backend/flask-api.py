@@ -42,11 +42,8 @@ def get_db_connection():
         conn = mysql.connector.connect(**db_config)
         return conn
     except Error as e:
-        print(f"Error connecting to MySQL: {e}")
         return None
 
-# TODO move session checks from backend to frontend
-# makes sure user is loggedin
 def loginRequired(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -61,13 +58,13 @@ def loginRequired(f):
 def authenticate():
     # gets data from json
     data = request.get_json()
-    email = data.get('username')
+    email = data.get('email')
     password = data.get('password')
 
     # connects to database
     conn = get_db_connection()
     if conn is None:
-        return jsonify({'status': 'error', 'message': 'Database connection failed'}), 500
+        return jsonify({'success': False, 'error': 'Database connection failed'}), 500
 
     try:
         # gets user info
@@ -76,7 +73,7 @@ def authenticate():
             """
             SELECT userID, firstName, lastName, email, gradYear, permissions, passwordHash
             FROM users
-            WHERE email = %s
+            WHERE TRIM(LOWER(email)) = TRIM(LOWER(%s))
             """,
             (email,)
         )
@@ -84,25 +81,36 @@ def authenticate():
 
         # if fail return
         if not user_record:
-            return jsonify({'status': 'fail', 'message': 'Invalid username or password'}), 401
+            return jsonify({'success': False, 'error': 'Invalid: email not found'}), 401
 
         # Compare bcrypt hash with provided password
         if bcrypt.checkpw(password.encode("utf-8"), user_record["passwordHash"].encode("utf-8")):
             # If match make session and add user
             session.permanent = True
-            session['id'] = user_record.get('id')
+            session['id'] = user_record.get('userID')
             session['firstName'] = user_record.get('firstName')
             session['email'] = email
             session['permissions'] = user_record.get('permissions')
             session['lastName'] = user_record.get('lastName')
             session['gradYear'] = user_record.get('gradYear')
 
-            return jsonify({'status': 'success', 'message': 'Authenticated', 'permissions':user_record['permissions']}), 200
+            return jsonify({
+                'success':True,
+                'user': {
+                    'id': user_record['userID'],
+                    'firstName': user_record['firstName'],
+                    'lastName': user_record['lastName'],
+                    'email': email,
+                    'permissions': user_record['permissions'],
+                    'gradYear': user_record['gradYear']
+                }
+            }), 200
+
         else:
-            return jsonify({'status': 'fail', 'message': 'Invalid username or password'}), 401
+            return jsonify({'success':False, 'error': "Invalid email or password"}), 401
 
     except Error as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        return jsonify({'success':False, 'error': "Backend error"}), 500
 
     finally:
         cursor.close()
@@ -113,7 +121,7 @@ def authenticate():
 @loginRequired
 def logout():
     session.clear()
-    return jsonify({'status': 'success', 'message': 'Logged out'}), 200
+    return jsonify({'success': True, 'message': 'Logged out'}), 200
 
 # returns current user
 @app.route('/currentUser', methods=['GET'])
@@ -178,38 +186,5 @@ def create_user():
         cursor.close()
         conn.close()
 
-
-@app.route('/test', methods=['GET'])
-def test():
-    conn = get_db_connection()
-    if conn is None:
-        return jsonify({'error': 'DB failure'}), 500
-    
-    try:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute(
-            """
-            SELECT userID, firstName, lastName, email, gradYear, permissions, passwordHash
-            FROM users
-            WHERE email = %s
-            """,
-            ("eve.jones@example.com",)
-        )
-        user_record = cursor.fetchone()
-
-        if not user_record:
-            return jsonify({'status': 'fail', 'message': 'Invalid username or password'}), 401
-
-
-        # checkPass = bcrypt.checkpw("password123".encode("utf-8"), user_record["passwordHash"].encode("utf-8"))
-
-        return bcrypt.hashpw("password123".encode('utf-8'), bcrypt.gensalt()), 200
-    except Error as e:
-        return jsonify({'error': str(e)}), 500
-
-    finally:
-        cursor.close()
-        conn.close()
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="localhost", port=5000, debug=True)

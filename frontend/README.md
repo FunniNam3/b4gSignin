@@ -1,73 +1,75 @@
-# React + TypeScript + Vite
+# Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This directory contains the frontend application for the project. The frontend is built with **React** and **TypeScript** and communicates with the backend Flask API to handle authentication, data retrieval, and user interactions.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React
+- TypeScript
+- React Router
+- Axios
+- CSS
 
-## React Compiler
+## Prerequisites
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js (v18 or newer recommended)
+- npm or yarn
 
-## Expanding the ESLint configuration
+## Setup
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 1. Install Dependencies
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+From the frontend directory, install all required packages:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Environment Configuration
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Create a `.env` file in the root of the frontend directory and define the backend API URL.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+If using **Vite**:
+
+```env
+VITE_BACKEND_API_URL=http://localhost:5000
 ```
+
+> This value should point to the running backend server.
+
+⚠️ **Important:** Frontend environment variables are publicly accessible and bundled at build time. Do **not** store secrets or private keys in this file.
+
+## Running the Frontend
+
+Start the development server with:
+
+```bash
+npm run dev
+```
+
+The application will be available at the local development URL shown in the terminal (commonly `http://localhost:5173`).
+
+## Project Structure
+
+```
+src/
+├── components/     # Reusable UI components
+├── context/        # Global state and authentication context
+├── pages/          # Page-level components and routes
+├── types/          # Shared TypeScript types and interfaces
+├── App.tsx         # Application routes and layout
+├── main.tsx        # Application entry point
+├── index.css       # Global styles
+```
+
+## Backend Integration
+
+The frontend communicates with the backend using Axios. The API base URL is configured globally at application startup using the environment variable defined in `.env`.
+
+Authentication and user state are managed through a custom context provider.
+
+## Notes
+
+- Ensure the backend server is running before starting the frontend.
+- Sample user credentials (if using sample database data) are documented in the database setup instructions.
+- This frontend assumes the backend is configured to allow CORS and credentials if authentication cookies are used.
