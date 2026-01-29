@@ -1,6 +1,6 @@
 # Frontend
 
-This directory contains the frontend application for the project. The frontend is built with **React** and **TypeScript** and communicates with the backend Flask API to handle authentication, data retrieval, and user interactions.
+This directory contains the frontend application for the project. The frontend is built with **React**, **TypeScript**, and **Tailwind CSS**, and communicates with the backend Flask API to handle authentication, data retrieval, and user interactions.
 
 ## Tech Stack
 
@@ -8,7 +8,8 @@ This directory contains the frontend application for the project. The frontend i
 - TypeScript
 - React Router
 - Axios
-- CSS
+- Tailwind CSS
+- CSS (for global and custom styles when needed)
 
 ## Prerequisites
 
@@ -25,7 +26,41 @@ From the frontend directory, install all required packages:
 npm install
 ```
 
-### 2. Environment Configuration
+### 2. Tailwind CSS Setup
+
+Tailwind CSS is used for utility-first styling across the application.
+
+If Tailwind is not already installed, initialize it with:
+
+```bash
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
+
+Update `tailwind.config.js` to include your source files:
+
+```js
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+```
+
+Add Tailwind’s base styles to `src/index.css`:
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+Tailwind utility classes can now be used throughout the project.
+
+### 3. Environment Configuration
 
 Create a `.env` file in the root of the frontend directory and define the backend API URL.
 
@@ -53,14 +88,21 @@ The application will be available at the local development URL shown in the term
 
 ```
 src/
-├── components/     # Reusable UI components
+├── components/     # Reusable UI components (styled with Tailwind)
 ├── context/        # Global state and authentication context
 ├── pages/          # Page-level components and routes
 ├── types/          # Shared TypeScript types and interfaces
 ├── App.tsx         # Application routes and layout
 ├── main.tsx        # Application entry point
-├── index.css       # Global styles
+├── index.css       # Global styles and Tailwind directives
 ```
+
+## Styling Notes
+
+- Tailwind CSS is the primary styling solution.
+- Utility classes are used directly in JSX for rapid UI development.
+- Global styles and overrides (if needed) live in `index.css`.
+- Component-specific styling should prefer Tailwind over custom CSS unless necessary.
 
 ## Backend Integration
 
