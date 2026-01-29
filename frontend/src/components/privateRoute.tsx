@@ -8,7 +8,7 @@ const PrivateRoute = () => {
     return <div>Loading session...</div>;
   }
 
-  return user ? <Outlet /> : <Navigate to="login" replace />;
+  return user ? <Outlet /> : <Navigate to="/" replace />;
 };
 
 export default PrivateRoute;

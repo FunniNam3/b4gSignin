@@ -51,8 +51,7 @@ const Auth = () => {
         setError(res.data.error);
       }
     } catch (err: any) {
-      console.error(err.response);
-      setError(err.response?.data?.message || "Something went wrong");
+      setError(err.response?.data?.error || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -63,6 +62,8 @@ const Auth = () => {
       <h1>{isSignup ? "Sign Up" : "Login"}</h1>
 
       <form onSubmit={handleSubmit}>
+        {error && <p style={{ color: "red" }}>{error}</p>}
+
         {isSignup && (
           <>
             <input
@@ -104,8 +105,6 @@ const Auth = () => {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-
-        {error && <p style={{ color: "red" }}>{error}</p>}
 
         <button type="submit" disabled={loading}>
           {loading ? "Please wait..." : isSignup ? "Create Account" : "Login"}

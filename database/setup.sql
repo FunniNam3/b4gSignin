@@ -8,10 +8,11 @@ CREATE TABLE IF NOT EXISTS users (
     firstName VARCHAR(255) NOT NULL,
     lastName VARCHAR(255) NOT NULL,
     gradYear INT NOT NULL,
-    permissions INT NOT NULL,
     teamID INT DEFAULT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     passwordHash VARCHAR(255) NOT NULL,
+    hasEated BOOLEAN NOT NULL DEFAULT FALSE,
+    permissions INT NOT NULL,
     createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT userTeam
 		FOREIGN KEY (teamID)
