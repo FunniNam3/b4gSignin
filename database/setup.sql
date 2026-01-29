@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     firstName VARCHAR(255) NOT NULL,
     lastName VARCHAR(255) NOT NULL,
     gradYear INT NOT NULL,
+    participating BOOLEAN NOT NULL DEFAULT FALSE,
     teamID INT DEFAULT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     passwordHash VARCHAR(255) NOT NULL,
