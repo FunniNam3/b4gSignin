@@ -6,7 +6,7 @@ export function Teams() {
 
   async function handleSubmit() {
     const res = await axios.get("/teamSearch", { params: { team: team } });
-    console.log(res);
+    console.log(res.data.teams);
   }
 
   return (

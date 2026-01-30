@@ -208,7 +208,7 @@ def teamSearch():
                 t.teamName,
                 COUNT(u.userID) AS size
             FROM teams t
-            JOIN users u ON t.teamID = u.teamID
+            LEFT JOIN users u ON t.teamID = u.teamID
             WHERE t.teamName LIKE %s
             GROUP BY t.teamID, t.teamName;
         """
