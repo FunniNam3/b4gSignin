@@ -150,12 +150,12 @@ def currentUser():
     
 # creates user
 @app.route('/createUser', methods=['POST'])
-def create_user():
+def createUser():
     # gets user info
     data = request.get_json()
 
     if 'email' not in data or 'password' not in data:
-        return jsonify({'error': 'Missing fields'}), 400
+        return jsonify({'success':False, 'error': 'Missing fields'}), 400
 
     email = data['email']
     rawPassword = data['password']
@@ -169,7 +169,7 @@ def create_user():
     # Get db connection
     conn = get_db_connection()
     if conn is None:
-        return jsonify({'error': 'DB failure'}), 500
+        return jsonify({'success':False, 'error': 'DB failure'}), 500
 
     try:
         # Create user
@@ -177,10 +177,49 @@ def create_user():
         cursor.execute("INSERT INTO users (firstName, lastName, email, passwordHash, permissions, gradYear) VALUES (%s, %s, %s, %i, %i)", 
                        (firstName, lastName, email, hashedPassword.decode('utf-8'), 0, gradYear))
         conn.commit()
-        return jsonify({'status': 'success', 'message': 'User created'}), 201
+        return jsonify({'success':True, 'message': 'User created'}), 201
 
     except Error as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'success':False, 'error': str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/teamSearch', methods=['GET'])
+def teamSearch():
+    #get team name
+    team = request.args.get('team')
+
+    if not team:
+        return jsonify({'success':False, 'error':'Missing team'}), 400
+    
+    conn = get_db_connection()
+    if conn is None:
+        return jsonify({'success':False, 'error': 'DB failure'}), 500
+    
+    try:
+        # Create user
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT 
+                t.teamID,
+                t.teamName,
+                COUNT(u.userID) AS size
+            FROM teams t
+            JOIN users u ON t.teamID = u.teamID
+            WHERE t.teamName LIKE %s
+            GROUP BY t.teamID, t.teamName;
+        """
+
+        cursor.execute(query, (f"%{team}%",))
+        results = cursor.fetchall()
+
+        return jsonify({'success': True, 'teams': results}), 200
+
+    except Error as e:
+        return jsonify({'success':False, 'error': str(e)}), 500
 
     finally:
         cursor.close()
