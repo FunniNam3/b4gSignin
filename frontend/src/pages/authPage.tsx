@@ -1,11 +1,19 @@
 import { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/authContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Auth = () => {
   const { login, user } = useAuth();
   const navigate = useNavigate();
+
+  interface LocationState {
+    from?: { pathname: string };
+  }
+
+  const location = useLocation();
+  const from =
+    (location.state as LocationState)?.from?.pathname || "/dashboard";
 
   const [isSignup, setIsSignup] = useState(false);
 
@@ -46,7 +54,7 @@ const Auth = () => {
 
       if (res.data.success) {
         login(res.data.user);
-        navigate("/dashboard");
+        navigate(from, { replace: true });
       } else {
         setError(res.data.error);
       }

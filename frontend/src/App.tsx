@@ -1,10 +1,11 @@
 import { Routes, Route } from "react-router-dom";
-import Dashboard from "./pages/dashboard";
-import Auth from "./pages/auth";
-import { Landing } from "./pages/landing";
+import Dashboard from "./pages/dashboardPage";
+import Auth from "./pages/authPage";
+import { Landing } from "./pages/landingPage";
 import PrivateRoute from "./components/privateRoute";
 import { Navigation } from "./components/navigation";
-import { Teams } from "./pages/teams";
+import { TeamSearch } from "./pages/teamSearchPage";
+import { JoinTeam } from "./components/teams/joinTeam";
 
 function App() {
   return (
@@ -13,9 +14,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/auth" element={<Auth />} />
-        <Route path="teams" element={<Teams />} />
+        <Route path="/teamSearch" element={<TeamSearch />} />
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/joinTeam" element={<JoinTeam />} />
         </Route>
       </Routes>
     </>

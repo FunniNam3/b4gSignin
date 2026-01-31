@@ -7,6 +7,7 @@ from flask_cors import CORS
 from functools import wraps
 import os
 from dotenv import load_dotenv
+from collections import defaultdict
 
 # Load environment variables from .env file
 load_dotenv()
@@ -71,7 +72,7 @@ def authenticate():
         cursor = conn.cursor(dictionary=True)
         cursor.execute(
             """
-            SELECT userID, firstName, lastName, email, gradYear, permissions, passwordHash
+            SELECT userID, firstName, lastName, email, gradYear, passwordHash
             FROM users
             WHERE TRIM(LOWER(email)) = TRIM(LOWER(%s))
             """,
@@ -90,7 +91,6 @@ def authenticate():
             session['id'] = user_record.get('userID')
             session['firstName'] = user_record.get('firstName')
             session['email'] = email
-            session['permissions'] = user_record.get('permissions')
             session['lastName'] = user_record.get('lastName')
             session['gradYear'] = user_record.get('gradYear')
 
@@ -101,7 +101,6 @@ def authenticate():
                     'firstName': user_record['firstName'],
                     'lastName': user_record['lastName'],
                     'email': email,
-                    'permissions': user_record['permissions'],
                     'gradYear': user_record['gradYear']
                 }
             }), 200
@@ -134,7 +133,6 @@ def currentUser():
             'firstName':session.get('firstName'),
             'lastName':session.get('lastName'),
             'email': session.get('email'),
-            'permissions':session.get('permissions'),
             'gradYear': session.get('gradYear')
         }), 200
     else:
@@ -144,10 +142,12 @@ def currentUser():
             'firstName':None,
             'lastName':None,
             'email': None,
-            'permissions':None,
             'gradYear': None
         }), 401
-    
+
+# TODO add delete users and edit users
+# maybe add email confirmation too
+
 # creates user
 @app.route('/createUser', methods=['POST'])
 def createUser():
@@ -174,7 +174,7 @@ def createUser():
     try:
         # Create user
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (firstName, lastName, email, passwordHash, permissions, gradYear) VALUES (%s, %s, %s, %i, %i)", 
+        cursor.execute("INSERT INTO users (firstName, lastName, email, passwordHash, gradYear) VALUES (%s, %s, %s, %i, %i)", 
                        (firstName, lastName, email, hashedPassword.decode('utf-8'), 0, gradYear))
         conn.commit()
         return jsonify({'success':True, 'message': 'User created'}), 201
@@ -189,10 +189,7 @@ def createUser():
 @app.route('/teamSearch', methods=['GET'])
 def teamSearch():
     #get team name
-    team = request.args.get('team')
-
-    if not team:
-        return jsonify({'success':False, 'error':'Missing team'}), 400
+    team = request.args.get('team',"")
     
     conn = get_db_connection()
     if conn is None:
@@ -210,13 +207,47 @@ def teamSearch():
             FROM teams t
             LEFT JOIN users u ON t.teamID = u.teamID
             WHERE t.teamName LIKE %s
-            GROUP BY t.teamID, t.teamName;
+            GROUP BY t.teamID, t.teamName
         """
 
         cursor.execute(query, (f"%{team}%",))
-        results = cursor.fetchall()
+        teams = cursor.fetchall()
 
-        return jsonify({'success': True, 'teams': results}), 200
+        teamIDs = [t['teamID'] for t in teams]
+        if not teamIDs:
+            return jsonify({'success':False, 'teams':[]}), 200
+        
+        placeholders = ','.join(['%s'] * len(teamIDs))
+
+        cursor.execute(f"""
+            SELECT
+                userID,
+                firstName,
+                lastName,
+                email,
+                gradYear,
+                teamID
+            FROM users
+            WHERE teamID IN ({placeholders});
+        """, tuple(teamIDs))
+
+        users = cursor.fetchall()
+
+        usersSorted = defaultdict(list)
+
+        for u in users:
+            usersSorted[u['teamID']].append({
+                'userID': u['userID'],
+                'firstName': u['firstName'],
+                'lastName': u['lastName'],
+                'email': u['email'],
+                'gradYear': u['gradYear']
+            })
+
+        for t in teams:
+            t['members'] = usersSorted.get(t['teamID'], [])
+
+        return jsonify({'success': True, 'teams': teams}), 200
 
     except Error as e:
         return jsonify({'success':False, 'error': str(e)}), 500
@@ -224,6 +255,10 @@ def teamSearch():
     finally:
         cursor.close()
         conn.close()
+
+# TODO add JoinTeam, add Edit Team
+# make sure people cannot edit if they are not the team owner allow transfering ownership
+# and if the team is empty then delete it
 
 if __name__ == '__main__':
     app.run(host="localhost", port=5000, debug=True)
