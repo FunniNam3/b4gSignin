@@ -5,7 +5,8 @@ import { Landing } from "./pages/landingPage";
 import PrivateRoute from "./components/privateRoute";
 import { Navigation } from "./components/navigation";
 import { TeamSearch } from "./pages/teamSearchPage";
-import { JoinTeam } from "./components/teams/joinTeam";
+import { JoinTeam } from "./pages/joinTeamPage";
+import { TeamDashboard } from "./pages/teamDashboard";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/joinTeam" element={<JoinTeam />} />
+          <Route path="/team" element={<TeamDashboard />} />
         </Route>
       </Routes>
     </>

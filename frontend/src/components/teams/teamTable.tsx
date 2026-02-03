@@ -4,10 +4,10 @@ import { Team } from "./team";
 
 const TeamsTable = ({ teams }: { teams: TeamType[] }) => {
   const nav = useNavigate();
-  function onJoin(teamID: number) {
+  function onJoin(teamID: number, teamName: string) {
     nav("/joinTeam", {
       replace: true,
-      state: { teamID: teamID },
+      state: { teamID: teamID, teamName: teamName },
     });
   }
 

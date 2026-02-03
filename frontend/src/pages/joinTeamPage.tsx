@@ -3,15 +3,17 @@ import { useState } from "react";
 
 export function JoinTeam() {
   interface LocationState {
-    teamID?: string;
+    teamID?: number;
+    teamName?: string;
   }
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const location = useLocation();
-  const team = (location.state as LocationState)?.teamID;
+  const teamName = (location.state as LocationState)?.teamName;
+  const teamID = (location.state as LocationState)?.teamID;
   // TODO make this page actually add the person to the team and load them into the team page afterwards
   return (
     <div>
-      <h1>{team}</h1>
+      <h1> Joining {teamName}</h1>
     </div>
   );
 }

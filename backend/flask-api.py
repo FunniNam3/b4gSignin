@@ -72,7 +72,7 @@ def authenticate():
         cursor = conn.cursor(dictionary=True)
         cursor.execute(
             """
-            SELECT userID, firstName, lastName, email, gradYear, passwordHash
+            SELECT userID, firstName, lastName, email, gradYear, passwordHash, teamID
             FROM users
             WHERE TRIM(LOWER(email)) = TRIM(LOWER(%s))
             """,
@@ -93,6 +93,7 @@ def authenticate():
             session['email'] = email
             session['lastName'] = user_record.get('lastName')
             session['gradYear'] = user_record.get('gradYear')
+            session['teamID'] = user_record.get('teamID')
 
             return jsonify({
                 'success':True,
@@ -101,7 +102,8 @@ def authenticate():
                     'firstName': user_record['firstName'],
                     'lastName': user_record['lastName'],
                     'email': email,
-                    'gradYear': user_record['gradYear']
+                    'gradYear': user_record['gradYear'],
+                    'teamID': user_record['teamID']
                 }
             }), 200
 
@@ -133,7 +135,8 @@ def currentUser():
             'firstName':session.get('firstName'),
             'lastName':session.get('lastName'),
             'email': session.get('email'),
-            'gradYear': session.get('gradYear')
+            'gradYear': session.get('gradYear'),
+            'teamID' : session.get('teamID')
         }), 200
     else:
         # else return none
@@ -248,6 +251,61 @@ def teamSearch():
             t['members'] = usersSorted.get(t['teamID'], [])
 
         return jsonify({'success': True, 'teams': teams}), 200
+
+    except Error as e:
+        return jsonify({'success':False, 'error': str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/getTeam', methods=['GET'])
+def getTeam():
+    #get team name
+    teamID = request.args.get('teamID',None)
+
+    print(teamID)
+
+    if teamID is None:
+        return jsonify({'success':False, 'error': 'Missing Params'}), 422
+    
+    conn = get_db_connection()
+    if conn is None:
+        return jsonify({'success':False, 'error': 'DB failure'}), 500
+    
+    try:
+        # Create user
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT 
+                t.teamID,
+                t.teamName,
+                COUNT(u.userID) AS size
+            FROM teams t
+            LEFT JOIN users u ON t.teamID = u.teamID
+            WHERE t.teamID = %s;
+        """
+
+        cursor.execute(query, (teamID,))
+        team = cursor.fetchone()
+        cursor.execute("""
+            SELECT
+                userID,
+                firstName,
+                lastName,
+                email,
+                gradYear,
+                teamID
+            FROM users
+            WHERE teamID = %s;
+        """,(teamID,))
+
+        users = cursor.fetchall()
+
+        team['members'] = users
+
+        return jsonify({'success': True, 'team': team}), 200
 
     except Error as e:
         return jsonify({'success':False, 'error': str(e)}), 500

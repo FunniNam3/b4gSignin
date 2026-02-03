@@ -2,7 +2,7 @@ import type { TeamType } from "../../types/teams";
 
 type TeamProps = {
   team: TeamType;
-  onJoin: (teamID: number) => void;
+  onJoin: (teamID: number, teamName: string) => void;
 };
 
 export function Team({ team, onJoin }: TeamProps) {
@@ -26,7 +26,7 @@ export function Team({ team, onJoin }: TeamProps) {
       </td>
       <td>
         <button
-          onClick={() => onJoin(team.teamID)}
+          onClick={() => onJoin(team.teamID, team.teamName)}
           className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Join Team
