@@ -23,22 +23,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   // On page open and reloadsd check if a user is currently signed in or not
-  useEffect(() => {
-    const restoreSession = async () => {
-      try {
-        const res = await axios.get("/currentUser");
-        if (res.data.id) {
-          setUser(res.data);
-        } else {
-          throw new Error("No user in session");
-        }
-      } catch {
-        setUser(null);
-      } finally {
-        setIsLoading(false);
+  const restoreSession = async () => {
+    try {
+      const res = await axios.get("/currentUser");
+      if (res.data.id) {
+        setUser(res.data);
+      } else {
+        throw new Error("No user in session");
       }
-    };
-
+    } catch {
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
     restoreSession();
   }, []);
 

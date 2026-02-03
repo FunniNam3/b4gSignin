@@ -25,7 +25,7 @@ app.config.update(
 CORS(
     app,
     supports_credentials=True,
-    methods=["GET", "POST", "OPTIONS"],
+    methods=["GET", "POST", "PATCH", "PUT", "OPTIONS"],
     allow_headers=["Content-Type"]
 )
 
@@ -318,30 +318,53 @@ def getTeam():
 # make sure people cannot edit if they are not the team owner allow transfering ownership
 # and if the team is empty then delete it
 
-def updateUserTeam(user:int, teamID:int):
+# def updateUserTeam(user:int, teamID:int):
+#     conn = get_db_connection()
+#     if conn is None:
+#         return jsonify({'success':False, 'error': 'DB failure'}), 500
+    
+#     try:
+#         cursor = conn.cursor()
+
+#         # Finish this code then make join + leave team
+
+#     except Error as e:
+#         return jsonify({'success':False, 'error': str(e)}), 500
+#     finally:
+#         cursor.close()
+#         conn.close()
+    
+@app.route('/updateTeam', methods=['PATCH'])
+@loginRequired
+def updateTeam():
+    data = request.get_json()
+    print(data)
+
+    user = data.get('userID', None)
+    teamID = data.get('teamID', 'NULL')
+
+    if user is None:
+        return jsonify({'success':False, 'error': 'Missing Params'}), 422
+
     conn = get_db_connection()
     if conn is None:
         return jsonify({'success':False, 'error': 'DB failure'}), 500
     
     try:
         cursor = conn.cursor()
+        cursor.execute("update users set teamID = %s where userID = %s",(teamID, user))
+        conn.commit()
 
-        # Finish this code then make join + leave team
+        session['teamID'] = teamID
+
+        return jsonify({'success': True, 'message':'Joined team'}), 200
 
     except Error as e:
         return jsonify({'success':False, 'error': str(e)}), 500
+    
     finally:
         cursor.close()
         conn.close()
-    
-
-@app.route('/joinTeam', methods=['POST'])
-def joinTeam():
-    data = request.get_json()
-
-    user = data.get('user')
-    teamID = data.get('teamID')
-
 
 
 if __name__ == '__main__':

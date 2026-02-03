@@ -18,7 +18,7 @@ export function TeamSearch() {
   }, []);
 
   return (
-    <div className="flex flex-col justify-center">
+    <div className="flex flex-col justify-center p-3">
       <h1>Teams</h1>
       <div>
         <input

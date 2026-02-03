@@ -9,19 +9,19 @@ export function Team({ team }: TeamProps) {
   const nav = useNavigate();
 
   function onJoin(teamID: number, teamName: string) {
-    nav("/joinTeam", {
+    nav("/updateTeam", {
       replace: true,
-      state: { teamID: teamID, teamName: teamName },
+      state: { joining: true, teamID: teamID, teamName: teamName },
     });
   }
 
   return (
     <tr>
-      <td>{team.teamName}</td>
-      <td>{team.size}</td>
-      <td>
+      <td className="p-3 border-b border-gray-300">{team.teamName}</td>
+      <td className="p-3 border-b border-gray-300">{team.size}</td>
+      <td className="p-3 border-b border-gray-300">
         {team.size > 0 ? (
-          <ul>
+          <ul className="flex flex-col">
             {team.members.map((member) => (
               <li key={member.userID}>
                 {member.firstName} {member.lastName}
@@ -32,7 +32,7 @@ export function Team({ team }: TeamProps) {
           <em>No members</em>
         )}
       </td>
-      <td>
+      <td className="p-3 border-b border-gray-300">
         <button
           onClick={() => onJoin(team.teamID, team.teamName)}
           className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"

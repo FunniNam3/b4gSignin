@@ -1,23 +1,15 @@
 import type { TeamType } from "../../types/teams";
-import { useNavigate } from "react-router-dom";
 import { Team } from "./team";
 
 const TeamsTable = ({ teams }: { teams: TeamType[] }) => {
-  const nav = useNavigate();
-  function onJoin(teamID: number, teamName: string) {
-    nav("/joinTeam", {
-      replace: true,
-      state: { teamID: teamID, teamName: teamName },
-    });
-  }
   return (
-    <table className="text-center">
+    <table className="text-center border-collapse border border-gray-300">
       <thead>
         <tr>
-          <th>Team Name</th>
-          <th>Size</th>
-          <th>Members</th>
-          <th>Action</th>
+          <th className="border-b border-gray-300">Team Name</th>
+          <th className="border-b border-gray-300">Size</th>
+          <th className="border-b border-gray-300">Members</th>
+          <th className="border-b border-gray-300">Action</th>
         </tr>
       </thead>
       <tbody>
