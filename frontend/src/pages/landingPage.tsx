@@ -2,6 +2,7 @@ import { useAuth } from "../context/authContext";
 
 export function Landing() {
   const { user, logout } = useAuth();
+  // TODO Finish this page
   return (
     <>
       {user?.email && <h1>Hello {user.firstName}</h1>}
