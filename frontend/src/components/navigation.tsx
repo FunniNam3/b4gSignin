@@ -9,7 +9,11 @@ export function Navigation() {
       <div className="flex flex-row gap-2">
         <a href="/">Home</a>
         <a href="/dashboard">Dashboard</a>
-        <a href="/teamSearch">Teams</a>
+        {user?.teamID ? (
+          <a href="/team">Team</a>
+        ) : (
+          <a href="/teamSearch">Team Search</a>
+        )}
         <a href="/faq">FAQ</a>
         {user?.email ? (
           <h1>{user.firstName}</h1>

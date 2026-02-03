@@ -7,10 +7,11 @@ type TeamProps = {
 
 export function Team({ team }: TeamProps) {
   const nav = useNavigate();
-  function onJoin(teamID: number) {
+
+  function onJoin(teamID: number, teamName: string) {
     nav("/joinTeam", {
       replace: true,
-      state: { teamID: teamID },
+      state: { teamID: teamID, teamName: teamName },
     });
   }
 
@@ -33,7 +34,7 @@ export function Team({ team }: TeamProps) {
       </td>
       <td>
         <button
-          onClick={() => onJoin(team.teamID)}
+          onClick={() => onJoin(team.teamID, team.teamName)}
           className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Join Team

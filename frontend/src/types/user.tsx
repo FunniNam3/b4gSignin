@@ -4,4 +4,5 @@ export interface User {
   lastName: string | null;
   email: string | null;
   gradYear: number | null;
+  teamID: number | null;
 }
