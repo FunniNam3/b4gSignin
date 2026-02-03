@@ -1,12 +1,13 @@
 import { useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useAuth } from "../../context/authContext";
 
 export function JoinTeam() {
   interface LocationState {
     teamID?: string;
   }
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const location = useLocation();
+  const { user } = useAuth();
   const team = (location.state as LocationState)?.teamID;
   // TODO make this page actually add the person to the team and load them into the team page afterwards
   return (

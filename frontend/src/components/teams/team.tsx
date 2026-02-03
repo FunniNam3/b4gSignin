@@ -1,12 +1,19 @@
 import type { TeamType } from "../../types/teams";
+import { useNavigate } from "react-router-dom";
 
 type TeamProps = {
   team: TeamType;
-  onJoin: (teamID: number) => void;
 };
 
-export function Team({ team, onJoin }: TeamProps) {
-  console.log(team);
+export function Team({ team }: TeamProps) {
+  const nav = useNavigate();
+  function onJoin(teamID: number) {
+    nav("/joinTeam", {
+      replace: true,
+      state: { teamID: teamID },
+    });
+  }
+
   return (
     <tr>
       <td>{team.teamName}</td>
