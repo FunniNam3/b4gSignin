@@ -314,7 +314,7 @@ def getTeam():
         cursor.close()
         conn.close()
 
-# TODO add JoinTeam, add Edit Team
+# TODO add Edit Team
 # make sure people cannot edit if they are not the team owner allow transfering ownership
 # and if the team is empty then delete it
 
