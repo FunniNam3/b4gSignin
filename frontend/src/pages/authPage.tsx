@@ -66,57 +66,67 @@ const Auth = () => {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "0 auto" }}>
-      <h1>{isSignup ? "Sign Up" : "Login"}</h1>
+    <div className="flex flex-col gap-3 p-3">
+      <h1 className="text-4xl">{isSignup ? "Sign Up" : "Login"}</h1>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-3">
         {error && <p style={{ color: "red" }}>{error}</p>}
 
         {isSignup && (
           <>
+            <h2 className="text-xl">First Name</h2>
             <input
               placeholder="First Name"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
+              className="p-3 border-3"
               required
             />
-
+            <h2 className="text-xl">Last Name</h2>
             <input
               placeholder="Last Name"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
+              className="p-3 border-3"
               required
             />
-
+            <h2 className="text-xl">Graduation Year</h2>
             <input
               placeholder="Graduation Year"
               type="number"
               value={gradYear}
               onChange={(e) => setGradYear(e.target.value)}
+              className="p-3 border-3"
               required
             />
           </>
         )}
-
+        <h2 className="text-xl">Email</h2>
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           autoComplete="username"
+          className="p-3 border-3"
           required
         />
-
+        <h2 className="text-xl">Password</h2>
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="current-password"
+          className="p-3 border-3"
           required
         />
 
-        <button type="submit" disabled={loading}>
+        <button
+          type="submit"
+          disabled={loading}
+          className="p-3 border rounded-xl"
+        >
           {loading ? "Please wait..." : isSignup ? "Create Account" : "Login"}
         </button>
       </form>

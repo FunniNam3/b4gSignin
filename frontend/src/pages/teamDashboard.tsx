@@ -37,9 +37,9 @@ export function TeamDashboard() {
   }, []);
 
   return (
-    <div className="flex flex-col gap-2 p-5">
+    <div className="flex flex-col gap-3 p-3">
       <h1 className="text-5xl">{team?.teamName}</h1>
-      <h2 className="text-3xl">Size: {team?.size}</h2>
+      <h2 className="text-3xl">Member Count: {team?.memberCount}</h2>
       <div className="flex flex-col gap-5">
         {team?.members.map((member) => (
           <div className="border-2 p-3" key={member.userID}>

@@ -25,7 +25,7 @@ app.config.update(
 CORS(
     app,
     supports_credentials=True,
-    methods=["GET", "POST", "PATCH", "PUT", "OPTIONS"],
+    methods=["GET", "POST", "DELETE", "PATCH", "PUT", "OPTIONS"],
     allow_headers=["Content-Type"]
 )
 
@@ -48,7 +48,6 @@ def get_db_connection():
 def loginRequired(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        print(session)
         if 'email' not in session:
             return jsonify({'error':'Not authenticated or not logged in'}), 401
         return f(*args, **kwargs)
@@ -148,9 +147,6 @@ def currentUser():
             'gradYear': None
         }), 401
 
-# TODO add delete users and edit users
-# maybe add email confirmation too
-
 # creates user
 @app.route('/createUser', methods=['POST'])
 def createUser():
@@ -189,6 +185,38 @@ def createUser():
         cursor.close()
         conn.close()
 
+# TODO add delete users and edit users
+# maybe add email confirmation too
+
+@app.route('/deleteUser', methods=['DELETE'])
+def deleteUser():
+    # gets user info
+    data = request.get_json()
+
+    if 'email' not in data or 'password' not in data:
+        return jsonify({'success':False, 'error': 'Missing fields'}), 400
+
+    email = data['email']
+
+    # Get db connection
+    conn = get_db_connection()
+    if conn is None:
+        return jsonify({'success':False, 'error': 'DB failure'}), 500
+
+    try:
+        # Delete user
+        cursor = conn.cursor()
+        cursor.execute()
+        conn.commit()
+        return jsonify({'success':True, 'message': 'User deleted'}), 201
+
+    except Error as e:
+        return jsonify({'success':False, 'error': str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
 @app.route('/teamSearch', methods=['GET'])
 def teamSearch():
     #get team name
@@ -206,11 +234,15 @@ def teamSearch():
             SELECT 
                 t.teamID,
                 t.teamName,
-                COUNT(u.userID) AS size
+                t.leaderID,
+                l.firstName AS leaderFirstName,
+                l.lastName  AS leaderLastName,
+                COUNT(u.userID) AS memberCount
             FROM teams t
             LEFT JOIN users u ON t.teamID = u.teamID
-            WHERE t.teamName LIKE %s
-            GROUP BY t.teamID, t.teamName
+            LEFT JOIN users l ON t.leaderID = l.userID
+            WHERE t.teamID LIKE %s
+            GROUP BY t.teamID, t.teamName, t.leaderID, l.firstName, l.lastName;
         """
 
         cursor.execute(query, (f"%{team}%",))
@@ -264,8 +296,6 @@ def getTeam():
     #get team name
     teamID = request.args.get('teamID',None)
 
-    print(teamID)
-
     if teamID is None:
         return jsonify({'success':False, 'error': 'Missing Params'}), 422
     
@@ -281,14 +311,24 @@ def getTeam():
             SELECT 
                 t.teamID,
                 t.teamName,
-                COUNT(u.userID) AS size
+                t.leaderID,
+                l.firstName AS leaderFirstName,
+                l.lastName  AS leaderLastName,
+                COUNT(u.userID) AS memberCount
             FROM teams t
             LEFT JOIN users u ON t.teamID = u.teamID
-            WHERE t.teamID = %s;
+            LEFT JOIN users l ON t.leaderID = l.userID
+            WHERE t.teamID = %s
+            GROUP BY t.teamID, t.teamName, t.leaderID, l.firstName, l.lastName;
+
         """
 
         cursor.execute(query, (teamID,))
         team = cursor.fetchone()
+        if team is None:
+            return jsonify({'success': False, 'error': 'Team not found'}), 404
+        
+
         cursor.execute("""
             SELECT
                 userID,
@@ -338,7 +378,6 @@ def getTeam():
 @loginRequired
 def updateTeam():
     data = request.get_json()
-    print(data)
 
     user = data.get('userID', None)
     teamID = data.get('teamID', 'NULL')

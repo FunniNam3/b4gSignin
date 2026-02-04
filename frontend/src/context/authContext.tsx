@@ -31,8 +31,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       } else {
         throw new Error("No user in session");
       }
-    } catch {
+    } catch (e) {
       setUser(null);
+      console.error(e);
     } finally {
       setIsLoading(false);
     }

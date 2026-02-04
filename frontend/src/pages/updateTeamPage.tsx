@@ -16,6 +16,7 @@ export function UpdateTeam() {
   const teamID = state?.teamID;
   const joining = state?.joining;
 
+  // FIXME When team leader leaves either delete team or give team leader to another user
   useEffect(() => {
     const join = async () => {
       try {

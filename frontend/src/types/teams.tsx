@@ -9,6 +9,9 @@ export interface TeamMember {
 export interface TeamType {
   teamID: number;
   teamName: string;
-  size: number;
+  leaderID: number;
+  leaderFirstName: string;
+  leaderLastName: string;
+  memberCount: number;
   members: Array<TeamMember>;
 }

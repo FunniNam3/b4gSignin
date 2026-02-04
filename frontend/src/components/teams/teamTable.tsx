@@ -7,7 +7,8 @@ const TeamsTable = ({ teams }: { teams: TeamType[] }) => {
       <thead>
         <tr>
           <th className="border-b border-gray-300">Team Name</th>
-          <th className="border-b border-gray-300">Size</th>
+          <th className="border-b border-gray-300">Team Leader</th>
+          <th className="border-b border-gray-300">Member Count</th>
           <th className="border-b border-gray-300">Members</th>
           <th className="border-b border-gray-300">Action</th>
         </tr>

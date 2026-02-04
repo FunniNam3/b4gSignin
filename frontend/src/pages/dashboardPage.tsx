@@ -1,9 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
-import PrivateRoute from "../components/privateRoute";
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   if (!user) {
@@ -12,13 +11,9 @@ const Dashboard = () => {
 
   // TODO Flush out this page
   return (
-    <>
-      <div>
-        <h1>Welcome, {user?.email}!</h1>
-        <button onClick={logout}>Log Out</button>
-      </div>
-      <PrivateRoute></PrivateRoute>
-    </>
+    <div className="flex flex-col gap-3 p-3">
+      <h1>Welcome, {user?.firstName}!</h1>
+    </div>
   );
 };
 

@@ -21,7 +21,7 @@ export function Navigation() {
             Team Search
           </a>
         )}
-        <a className="p-2 text-xl" href="/faq">
+        <a className="p-2 text-xl" href="/FAQ">
           FAQ
         </a>
         {user?.email ? (
@@ -29,7 +29,9 @@ export function Navigation() {
             {user.firstName}
           </a>
         ) : (
-          <a href="/auth">Login</a>
+          <a href="/auth" className="p-2 text-xl">
+            Login
+          </a>
         )}
       </div>
     </nav>

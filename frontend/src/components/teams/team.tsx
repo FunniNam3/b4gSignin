@@ -18,9 +18,12 @@ export function Team({ team }: TeamProps) {
   return (
     <tr>
       <td className="p-3 border-b border-gray-300">{team.teamName}</td>
-      <td className="p-3 border-b border-gray-300">{team.size}</td>
       <td className="p-3 border-b border-gray-300">
-        {team.size > 0 ? (
+        {team.leaderFirstName} {team.leaderLastName}
+      </td>
+      <td className="p-3 border-b border-gray-300">{team.memberCount}</td>
+      <td className="p-3 border-b border-gray-300">
+        {team.memberCount > 0 ? (
           <ul className="flex flex-col">
             {team.members.map((member) => (
               <li key={member.userID}>
