@@ -1,37 +1,38 @@
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 
 export function Navigation() {
   const { user } = useAuth();
   return (
-    <nav className="flex flex-row justify-start items-center p-3">
-      <h1 className="text-4xl flex-1 font-[Modak]">TACS</h1>
-      <div className="flex flex-row gap-2">
-        <a className="p-2 text-xl" href="/">
-          Home
-        </a>
-        <a className="p-2 text-xl" href="/dashboard">
+    <nav className="flex w-full items-center justify-between p-3 shadow-sm">
+      <Link className="hover:scale-105" to="/">
+        <img src="logo.png" alt="" className="h-20" />
+      </Link>
+
+      <div className="flex flex-row gap-2 text-2xl">
+        <Link className="p-2 hover:scale-110" to="/dashboard">
           Dashboard
-        </a>
+        </Link>
         {user?.teamID ? (
-          <a className="p-2 text-xl" href="/team">
+          <Link className="p-2 hover:scale-110" to="/team">
             Team
-          </a>
+          </Link>
         ) : (
-          <a className="p-2 text-xl" href="/teamSearch">
+          <Link className="p-2 hover:scale-110" to="/teamSearch">
             Team Search
-          </a>
+          </Link>
         )}
-        <a className="p-2 text-xl" href="/FAQ">
+        <Link className="p-2 hover:scale-110" to="/FAQ">
           FAQ
-        </a>
+        </Link>
         {user?.email ? (
-          <a href="/user" className="p-2 text-xl">
+          <Link to="/user" className="p-2 hover:scale-110">
             {user.firstName}
-          </a>
+          </Link>
         ) : (
-          <a href="/auth" className="p-2 text-xl">
+          <Link to="/auth" className="p-2 hover:scale-110">
             Login
-          </a>
+          </Link>
         )}
       </div>
     </nav>
