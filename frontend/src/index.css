@@ -13,6 +13,14 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --linear-blue-pink-peach: linear-gradient(90deg,rgba(105, 157, 230, 1) 0%, rgba(213, 148, 220, 1) 50%, rgba(245, 220, 198, 1) 100%);
+  --linear-peach-pink:linear-gradient(90deg,rgba(245, 220, 198, 1) 0%, rgba(213, 148, 220, 1) 100%);
+  --linear-pink-blue:linear-gradient(90deg,rgba(213, 148, 220, 1) 0%, rgba(105, 157, 230, 1) 100%);
+  
+  --radial-peach-pink-blue:radial-gradient(circle,rgba(245, 220, 198, 1) 0%, rgba(213, 148, 220, 1) 58%, rgba(105, 157, 230, 1) 100%);
+  --radial-peach-pink:radial-gradient(circle,rgba(245, 220, 198, 1) 0%, rgba(213, 148, 220, 1) 100%);
+  --radial-pink-blue:radial-gradient(circle,rgba(213, 148, 220, 1) 0%, rgba(105, 157, 230, 1) 100%);
 }
 
 body {
