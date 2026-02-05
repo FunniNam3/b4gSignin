@@ -3,7 +3,7 @@ import { useAuth } from "../context/authContext";
 import axios from "axios";
 import { useEffect } from "react";
 
-export function UpdateTeam() {
+export function UpdateUserTeam() {
   interface LocationState {
     joining: boolean;
     teamID: number;

@@ -5,7 +5,7 @@ import { Landing } from "./pages/landingPage";
 import PrivateRoute from "./components/privateRoute";
 import { Navigation } from "./components/navigation";
 import { TeamSearch } from "./pages/teamSearchPage";
-import { UpdateTeam } from "./pages/updateTeamPage";
+import { UpdateUserTeam } from "./pages/updateUserTeamPage";
 import { TeamDashboard } from "./pages/teamDashboard";
 import { UserPage } from "./pages/userPage";
 import { FAQPage } from "./pages/FAQPage";
@@ -24,7 +24,7 @@ function App() {
           <Route path="/FAQ" element={<FAQPage />} />
           <Route element={<PrivateRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/updateTeam" element={<UpdateTeam />} />
+            <Route path="/updateTeam" element={<UpdateUserTeam />} />
             <Route path="/team" element={<TeamDashboard />} />
             <Route path="/user" element={<UserPage />} />
             <Route path="/editUser" element={<EditUserPage />} />
