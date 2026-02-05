@@ -1,3 +1,9 @@
+# Project Status & Contributions
+
+- This is an **internal project** and isn’t currently open to external feature contributions.
+- That said, **bug reports, issue reports, and feedback are always welcome** and genuinely appreciated.
+- If you notice anything broken, confusing, or worth improving, feel free to open an issue—we’re happy to take a look!
+
 # Project Overview
 
 This repository contains a full-stack web application built with a **React + TypeScript frontend**, a **Flask-based backend API**, and a **MySQL database**. The project is structured to keep each layer modular, maintainable, and independently configurable.

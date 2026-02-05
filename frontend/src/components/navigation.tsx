@@ -5,18 +5,18 @@ export function Navigation() {
   const { user } = useAuth();
   return (
     <nav className="flex w-full items-center justify-between p-3 border-b">
+      {/* TODO Make better logo transition */}
       <Link className="group" to="/">
-        <h1 className="text-5xl font-[Modak] flex flex-row items-baseline">
-          B{/* Left side "uild" */}
-          <span className="inline-block origin-right scale-x-0 opacity-0 transition-all duration-500 delay-100 group-hover:scale-x-100 group-hover:opacity-100">
-            uild
-          </span>
-          <img src="logo 4.svg" alt="B4G Logo" className="h-13 mx-1" />G
-          {/* Right side "ood" */}
-          <span className="inline-block origin-left scale-x-0 opacity-0 transition-all duration-500 delay-200 group-hover:scale-x-100 group-hover:opacity-100">
-            ood
-          </span>
-        </h1>
+        <img
+          src="short logo.png"
+          alt=""
+          className="inline-block h-14 group-hover:hidden"
+        />
+        <img
+          src="horizontal logo.png"
+          alt=""
+          className="hidden h-14 group-hover:inline-block"
+        />
       </Link>
 
       <div className="flex flex-row gap-2 text-2xl">
