@@ -38,6 +38,8 @@ export function TeamDashboard() {
     loadTeam();
   }, []);
 
+  // If user is team leader then allow them to kick others, edit team name, and transfer ownership
+
   return (
     <div className="flex flex-col gap-3 p-3">
       {loading ? (

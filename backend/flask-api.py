@@ -195,8 +195,6 @@ def createUser():
         cursor.close()
         conn.close()
 
-# TODO finish delete users and edit users
-
 @loginRequired
 @app.route('/updateUser', methods=['PATCH', 'OPTIONS'])
 def updateUser():
@@ -289,6 +287,7 @@ def updateUser():
         cursor.close()
         conn.close()
 
+# TODO need to finish this
 @loginRequired
 @app.route('/deleteUser', methods=['DELETE'])
 def deleteUser():
@@ -318,6 +317,8 @@ def deleteUser():
     finally:
         cursor.close()
         conn.close()
+
+# TODO add change password
 
 @app.route('/teamSearch', methods=['GET'])
 def teamSearch():
