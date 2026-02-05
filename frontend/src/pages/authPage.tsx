@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/authContext";
 import { useLocation, useNavigate } from "react-router-dom";
+import LoadingComponent from "../components/LoadingComponent";
 
 const Auth = () => {
   const { login, user } = useAuth();
@@ -79,6 +80,7 @@ const Auth = () => {
 
   return (
     <div className="flex flex-col gap-3 p-3">
+      {loading && <LoadingComponent fullPage message={isSignup ? "Creating Account..." : "Signing In..."} />}
       <h1 className="text-4xl">{isSignup ? "Sign Up" : "Login"}</h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-3">
