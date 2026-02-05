@@ -8,6 +8,7 @@ from functools import wraps
 import os
 from dotenv import load_dotenv
 from collections import defaultdict
+from json import dumps
 
 # Load environment variables from .env file
 load_dotenv()
@@ -21,6 +22,8 @@ app.config.update(
     SESSION_COOKIE_SAMESITE="Lax",
     SESSION_COOKIE_SECURE=False,  # HTTPS only in prod
 )
+
+frontUrl = os.getenv('FRONTEND_URL')
 
 CORS(
     app,
@@ -54,7 +57,7 @@ def loginRequired(f):
     return wrapper
 
 # authenticates user
-@app.route('/auth', methods=['POST'])
+@app.route('/auth', methods=["POST"])
 def authenticate():
     # gets data from json
     data = request.get_json()
@@ -93,6 +96,7 @@ def authenticate():
             session['lastName'] = user_record.get('lastName')
             session['gradYear'] = user_record.get('gradYear')
             session['teamID'] = user_record.get('teamID')
+            session['dietaryRestrictions'] = user_record.get('dietaryRestrictions')
 
             return jsonify({
                 'success':True,
@@ -135,7 +139,8 @@ def currentUser():
             'lastName':session.get('lastName'),
             'email': session.get('email'),
             'gradYear': session.get('gradYear'),
-            'teamID' : session.get('teamID')
+            'teamID' : session.get('teamID'),
+            'dietaryRestrictions': session.get('dietaryRestrictions')
         }), 200
     else:
         # else return none
@@ -144,12 +149,16 @@ def currentUser():
             'firstName':None,
             'lastName':None,
             'email': None,
-            'gradYear': None
+            'gradYear': None,
+            'dietaryRestrictions': None
         }), 401
 
 # creates user
-@app.route('/createUser', methods=['POST'])
+@app.route('/createUser', methods=['POST', 'OPTIONS'])
 def createUser():
+    if request.method == 'OPTIONS':
+        return '', 200
+    
     # gets user info
     data = request.get_json()
 
@@ -161,6 +170,7 @@ def createUser():
     firstName = data['firstName']
     lastName = data['lastName']
     gradYear = data['gradYear']
+    dietaryRestrictions = data['dietaryRestrictions']
 
     # Hash password
     hashedPassword = bcrypt.hashpw(rawPassword.encode('utf-8'), bcrypt.gensalt())
@@ -173,8 +183,8 @@ def createUser():
     try:
         # Create user
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (firstName, lastName, email, passwordHash, gradYear) VALUES (%s, %s, %s, %i, %i)", 
-                       (firstName, lastName, email, hashedPassword.decode('utf-8'), 0, gradYear))
+        cursor.execute("INSERT INTO users (firstName, lastName, email, passwordHash, gradYear, dietaryRestrictions) VALUES (%s, %s, %s, %s, %s, %s)", 
+                       (firstName, lastName, email, hashedPassword.decode('utf-8'), gradYear, dumps(dietaryRestrictions)))
         conn.commit()
         return jsonify({'success':True, 'message': 'User created'}), 201
 
@@ -185,9 +195,101 @@ def createUser():
         cursor.close()
         conn.close()
 
-# TODO add delete users and edit users
-# maybe add email confirmation too
+# TODO finish delete users and edit users
 
+@loginRequired
+@app.route('/updateUser', methods=['PATCH', 'OPTIONS'])
+def updateUser():
+    if request.method == "OPTIONS":
+        return "", 200
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({"success": False, "error": "No data provided"}), 400
+
+    user_id = session.get("id")
+    if not user_id:
+        return jsonify({"success": False, "error": "Not authenticated"}), 401
+
+    conn = get_db_connection()
+    if conn is None:
+        return jsonify({"success": False, "error": "DB failure"}), 500
+    
+    try:
+        cursor = conn.cursor(dictionary=True)
+
+        # Get current user
+        cursor.execute(
+            "SELECT email, passwordHash FROM users WHERE userID = %s",
+            (user_id,)
+        )
+        current_user = cursor.fetchone()
+        if not current_user:
+            return jsonify({"success": False, "error": "User not found"}), 404
+
+        current_email = current_user["email"]
+        stored_hash = current_user["passwordHash"]
+
+        updates = []
+        values = []
+
+        # ---- Email change (requires password) ----
+        new_email = data.get("email")
+        current_password = data.get("currentPassword")
+
+        if new_email and new_email != current_email:
+            if not current_password:
+                return jsonify({"success": False, "error": "Password required to change email"}), 400
+
+            if not bcrypt.checkpw(
+                current_password.encode("utf-8"),
+                stored_hash.encode("utf-8")
+            ):
+                return jsonify({"success": False, "error": "Incorrect password"}), 401
+
+            updates.append("email = %s")
+            values.append(new_email)
+
+        # ---- Optional fields ----
+        for field in ["firstName", "lastName", "gradYear"]:
+            if field in data:
+                updates.append(f"{field} = %s")
+                values.append(data[field])
+
+        # ---- Dietary restrictions (JSON) ----
+        if "dietaryRestrictions" in data:
+            updates.append("dietaryRestrictions = %s")
+            if len(data["dietaryRestrictions"]) == 0:
+                values.append(None)
+            else:
+                values.append(dumps(data["dietaryRestrictions"]))
+
+        if not updates:
+            return jsonify({"success": False, "error": "No changes provided"}), 400
+
+        values.append(user_id)
+
+        cursor.execute(
+            f"UPDATE users SET {', '.join(updates)} WHERE userID = %s",
+            tuple(values)
+        )
+
+        conn.commit()
+
+        # Update session if email changed
+        if new_email and new_email != current_email:
+            session["email"] = new_email
+
+        return jsonify({"success": True, "message": "User updated"}), 200
+
+    except Error as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+@loginRequired
 @app.route('/deleteUser', methods=['DELETE'])
 def deleteUser():
     # gets user info
@@ -241,7 +343,7 @@ def teamSearch():
             FROM teams t
             LEFT JOIN users u ON t.teamID = u.teamID
             LEFT JOIN users l ON t.leaderID = l.userID
-            WHERE t.teamID LIKE %s
+            WHERE t.teamName LIKE %s
             GROUP BY t.teamID, t.teamName, t.leaderID, l.firstName, l.lastName;
         """
 
@@ -320,7 +422,6 @@ def getTeam():
             LEFT JOIN users l ON t.leaderID = l.userID
             WHERE t.teamID = %s
             GROUP BY t.teamID, t.teamName, t.leaderID, l.firstName, l.lastName;
-
         """
 
         cursor.execute(query, (teamID,))

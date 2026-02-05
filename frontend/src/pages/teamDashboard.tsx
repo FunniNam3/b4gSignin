@@ -44,7 +44,13 @@ export function TeamDashboard() {
         <h1 className="text-4xl">Loading Team...</h1>
       ) : (
         <>
-          <h1 className="text-5xl">{team?.teamName}</h1>
+          <div className="flex flex-row gap-5 text-left items-end justify-between w-[40vw]">
+            <h1 className="text-5xl">{team?.teamName}</h1>
+            <h2 className="text-3xl">
+              Leader: {team?.leaderFirstName} {team?.leaderLastName}
+            </h2>
+          </div>
+
           <h2 className="text-3xl">Member Count: {team?.memberCount}</h2>
           <div className="flex flex-col gap-5">
             {team?.members.map((member) => (

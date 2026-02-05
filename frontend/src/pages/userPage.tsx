@@ -1,4 +1,5 @@
 import { useAuth } from "../context/authContext";
+import { Link } from "react-router-dom";
 
 export function UserPage() {
   const { user, logout } = useAuth();
@@ -8,6 +9,9 @@ export function UserPage() {
       <h1>
         Hello {user?.firstName} {user?.lastName}
       </h1>
+      <Link to="/editUser" className="bg-blue-600 p-2 w-30">
+        Edit User
+      </Link>
       <button onClick={logout} className="bg-red-600 w-30 h-10">
         Log Out
       </button>

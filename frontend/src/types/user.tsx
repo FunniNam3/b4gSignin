@@ -5,4 +5,5 @@ export interface User {
   email: string | null;
   gradYear: number | null;
   teamID: number | null;
+  dietaryRestrictions: string[] | null;
 }

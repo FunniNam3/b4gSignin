@@ -18,9 +18,9 @@ export function TeamSearch() {
   }, []);
 
   return (
-    <div className="flex flex-col justify-center p-3">
-      <h1>Teams</h1>
-      <div>
+    <div className="flex flex-col justify-center p-3 gap-4">
+      <h1 className="text-4xl">Search Teams</h1>
+      <div className="text-xl">
         <input
           id="teamSearch"
           type="text"

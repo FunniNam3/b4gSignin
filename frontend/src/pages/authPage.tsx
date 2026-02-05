@@ -22,6 +22,8 @@ const Auth = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [gradYear, setGradYear] = useState("");
+  const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>([]);
+  const [customDietary, setCustomDietary] = useState("");
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -37,13 +39,23 @@ const Auth = () => {
 
     try {
       if (isSignup) {
-        await axios.post("/createUser", {
-          email,
-          password,
-          firstName,
-          lastName,
-          gradYear: Number(gradYear),
-        });
+        await axios.post(
+          "/createUser",
+          {
+            email,
+            password,
+            firstName,
+            lastName,
+            gradYear: Number(gradYear),
+            dietaryRestrictions: customDietary
+              ? [
+                  ...dietaryRestrictions.filter((d) => d !== "Other"),
+                  customDietary,
+                ]
+              : dietaryRestrictions,
+          },
+          { withCredentials: true },
+        );
       }
 
       // sets HTTP-only cookie
@@ -99,6 +111,48 @@ const Auth = () => {
               className="p-3 border-3"
               required
             />
+            <h2 className="text-xl">Dietary Restrictions</h2>
+            <div className="flex flex-col gap-2">
+              {[
+                "Vegetarian",
+                "Vegan",
+                "Gluten-Free",
+                "Dairy-Free",
+                "Nut-Free",
+                "Halal",
+                "Kosher",
+                "Other",
+              ].map((option) => (
+                <label key={option} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    value={option}
+                    checked={dietaryRestrictions.includes(option)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (e.target.checked) {
+                        setDietaryRestrictions([...dietaryRestrictions, value]);
+                      } else {
+                        setDietaryRestrictions(
+                          dietaryRestrictions.filter((d) => d !== value),
+                        );
+                      }
+                    }}
+                  />
+                  {option}
+                </label>
+              ))}
+
+              {dietaryRestrictions.includes("Other") && (
+                <input
+                  type="text"
+                  placeholder="Please specify"
+                  value={customDietary}
+                  onChange={(e) => setCustomDietary(e.target.value)}
+                  className="p-3 border-3"
+                />
+              )}
+            </div>
           </>
         )}
         <h2 className="text-xl">Email</h2>

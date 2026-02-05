@@ -3,17 +3,17 @@ import { Team } from "./team";
 
 const TeamsTable = ({ teams }: { teams: TeamType[] }) => {
   return (
-    <table className="text-center border-collapse border border-gray-300">
+    <table className="table-auto text-left border-collapse border-gray-300">
       <thead>
-        <tr>
-          <th className="border-b border-gray-300">Team Name</th>
-          <th className="border-b border-gray-300">Team Leader</th>
-          <th className="border-b border-gray-300">Member Count</th>
-          <th className="border-b border-gray-300">Members</th>
-          <th className="border-b border-gray-300">Action</th>
+        <tr className="text-2xl">
+          <th className="border-b border-gray-300 px-2">Team Name</th>
+          <th className="border-b border-gray-300 px-2">Team Leader</th>
+          <th className="border-b border-gray-300 px-2">Member Count</th>
+          <th className="border-b border-gray-300 px-2">Members</th>
+          <th className="border-b border-gray-300 px-2">Action</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody className="text-xl">
         {teams.map((team) => (
           <Team key={team.teamID} team={team} />
         ))}

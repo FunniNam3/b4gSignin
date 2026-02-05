@@ -9,24 +9,30 @@ import { UpdateTeam } from "./pages/updateTeamPage";
 import { TeamDashboard } from "./pages/teamDashboard";
 import { UserPage } from "./pages/userPage";
 import { FAQPage } from "./pages/FAQPage";
+import { Footer } from "./components/footer";
+import { EditUserPage } from "./pages/editUserPage";
 
 function App() {
   return (
-    <>
+    <div className="h-fit min-h-screen flex flex-col">
       <Navigation />
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/teamSearch" element={<TeamSearch />} />
-        <Route path="/FAQ" element={<FAQPage />} />
-        <Route element={<PrivateRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/updateTeam" element={<UpdateTeam />} />
-          <Route path="/team" element={<TeamDashboard />} />
-          <Route path="/user" element={<UserPage />} />
-        </Route>
-      </Routes>
-    </>
+      <div className="flex-1 grow">
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/teamSearch" element={<TeamSearch />} />
+          <Route path="/FAQ" element={<FAQPage />} />
+          <Route element={<PrivateRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/updateTeam" element={<UpdateTeam />} />
+            <Route path="/team" element={<TeamDashboard />} />
+            <Route path="/user" element={<UserPage />} />
+            <Route path="/editUser" element={<EditUserPage />} />
+          </Route>
+        </Routes>
+      </div>
+      <Footer />
+    </div>
   );
 }
 

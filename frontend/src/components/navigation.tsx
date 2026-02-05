@@ -4,7 +4,7 @@ import { useAuth } from "../context/authContext";
 export function Navigation() {
   const { user } = useAuth();
   return (
-    <nav className="flex w-full items-center justify-between p-3 shadow-sm">
+    <nav className="flex w-full items-center justify-between p-3 border-b">
       <Link className="hover:scale-105" to="/">
         <img src="logo.png" alt="" className="h-20" />
       </Link>
